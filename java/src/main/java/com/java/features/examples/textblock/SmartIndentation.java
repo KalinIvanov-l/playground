@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SmartIndentation {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SmartIndentation.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SmartIndentation.class);
   private static final String MESSAGE = """
             It is great
             when compilers care about conventions
@@ -16,6 +16,6 @@ public class SmartIndentation {
   }
 
   public static void main(String[] args) {
-    LOGGER.info(smartIndentation());
+    LOG.info(smartIndentation());
   }
 }
