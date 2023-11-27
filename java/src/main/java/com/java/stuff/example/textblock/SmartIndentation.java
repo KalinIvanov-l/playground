@@ -1,4 +1,4 @@
-package com.java.stuff.example;
+package com.java.stuff.example.textblock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
