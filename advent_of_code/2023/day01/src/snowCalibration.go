@@ -48,11 +48,9 @@ func calculateValuePart2(line string) int {
 		"eight": "eight8eight",
 		"nine":  "nine9nine",
 	}
-
 	for word, replacement := range replacements {
 		line = strings.ReplaceAll(line, word, replacement)
 	}
-
 	re := regexp.MustCompile(`\d`)
 	matches := re.FindAllString(line, -1)
 
