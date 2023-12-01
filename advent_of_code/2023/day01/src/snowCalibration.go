@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		calibrationValue := calculateValue(line)
+		calibrationValue := calculateValuePart2(line)
 		totalSum += calibrationValue
 	}
 	fmt.Printf("Total sum of calibration values: %d\n", totalSum)
@@ -30,6 +31,33 @@ func calculateValue(line string) int {
 
 	firstDigit := matches[0][1]
 	lastDigit := matches[len(matches)-1][1]
+
+	number, _ := strconv.Atoi(firstDigit + lastDigit)
+	return number
+}
+
+func calculateValuePart2(line string) int {
+	replacements := map[string]string{
+		"one":   "one1one",
+		"two":   "two2two",
+		"three": "three3three",
+		"four":  "four4four",
+		"five":  "five5five",
+		"six":   "six6six",
+		"seven": "seven7seven",
+		"eight": "eight8eight",
+		"nine":  "nine9nine",
+	}
+
+	for word, replacement := range replacements {
+		line = strings.ReplaceAll(line, word, replacement)
+	}
+
+	re := regexp.MustCompile(`\d`)
+	matches := re.FindAllString(line, -1)
+
+	firstDigit := matches[0]
+	lastDigit := matches[len(matches)-1]
 
 	number, _ := strconv.Atoi(firstDigit + lastDigit)
 	return number
