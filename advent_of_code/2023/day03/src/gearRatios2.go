@@ -33,11 +33,11 @@ func part2(input string) int {
 	reStar := regexp.MustCompile(`\*`)
 	stars := reStar.FindAllStringIndex(data, -1)
 
-	partIdxs, partValues := findAllPossibleParts(data)
+	partIdx, partValues := findAllPossibleParts(data)
 
 	total := 0
 	for _, star := range stars {
-		parts := getAdjacentPartIndexes(star[0], rowLength, partIdxs)
+		parts := getAdjacentPartIndexes(star[0], rowLength, partIdx)
 		if len(parts) == 2 {
 			ratio := 1
 			for k := range parts {
