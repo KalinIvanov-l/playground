@@ -35,6 +35,7 @@ func parseInput(input string) []Race {
 	return races
 }
 
+// second part.
 func parseInputForPartTwo(input string) Race {
 	reNum := regexp.MustCompile(`\d+`)
 	digStr := reNum.FindAllString(input, -1)
