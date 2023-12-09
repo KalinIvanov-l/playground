@@ -9,20 +9,10 @@ import (
 	"strings"
 )
 
-type Card struct {
-	Value string
-}
-
-type Hand struct {
-	Cards []Card
-	Bid   int
-	Type  int
-	Score int
-}
-
-var cardValues = map[string]int{
-	"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "T": 10,
-	"J": 11, "Q": 12, "K": 13, "A": 14,
+type Hand string
+type Play struct {
+	hand Hand
+	bid  int
 }
 
 func main() {
@@ -30,87 +20,97 @@ func main() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	var hands []Hand
+	var plays []Play
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Split(line, " ")
-		cardsStr := parts[0]
-		var cards []Card
-		for _, char := range cardsStr {
-			cards = append(cards, Card{Value: string(char)})
-		}
 		bid, _ := strconv.Atoi(parts[1])
-		hands = append(hands, Hand{Cards: cards, Bid: bid})
+		plays = append(plays, Play{hand: Hand(parts[0]), bid: bid})
 	}
 
-	for i := range hands {
-		hands[i].Type = determineHandType(hands[i])
-		hands[i].Score = scoreHand(hands[i])
-	}
-
-	sort.Slice(hands, func(i, j int) bool {
-		if hands[i].Type == hands[j].Type {
-			return scoreHighCards(hands[i].Cards) > scoreHighCards(hands[j].Cards)
-		}
-		return hands[i].Type > hands[j].Type
+	cardValues := []rune{'J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A'}
+	sort.Slice(plays, func(i, j int) bool {
+		return plays[j].hand.beats(plays[i].hand, cardValues, true)
 	})
 
-	totalWinnings := 0
-	for i, hand := range hands {
-		rank := len(hands) - i
-		totalWinnings += hand.Bid * rank
+	total := 0
+	for idx, play := range plays {
+		total += play.bid * (idx + 1)
 	}
-	fmt.Println(totalWinnings)
+	fmt.Println(total)
 }
 
-func scoreHand(hand Hand) int {
-	return determineHandType(hand)
-}
-
-func scoreHighCards(cards []Card) int {
-	score := 0
-	for _, card := range cards {
-		score = score*100 + cardValues[card.Value]
-	}
-	return score
-}
-
-func determineHandType(hand Hand) int {
-	valueCounts := make(map[string]int)
-	for _, card := range hand.Cards {
-		valueCounts[card.Value]++
+func (h1 Hand) beats(h2 Hand, cardValues []rune, joker bool) bool {
+	var val1, val2 int
+	if joker {
+		val1 = getHandValueWithJoker(h1, cardValues)
+		val2 = getHandValueWithJoker(h2, cardValues)
+	} else {
+		val1 = getHandValue(h1)
+		val2 = getHandValue(h2)
 	}
 
-	var pairs, threes, fours int
-	for _, count := range valueCounts {
-		switch count {
-		case 2:
-			pairs++
-		case 3:
-			threes++
-		case 4:
-			fours++
+	if val1 == val2 {
+		for i := 0; i < len(h1); i++ {
+			cVal1 := getCardValue(rune(h1[i]), cardValues)
+			cVal2 := getCardValue(rune(h2[i]), cardValues)
+			if cVal1 != cVal2 {
+				return cVal1 > cVal2
+			}
+		}
+		return false
+	}
+	return val1 > val2
+}
+
+func getCardValue(r rune, cardValues []rune) int {
+	for idx, v := range cardValues {
+		if v == r {
+			return idx
 		}
 	}
+	return -1
+}
 
-	if len(valueCounts) == 1 {
+func getHandValueWithJoker(h Hand, cardValues []rune) (max int) {
+	for _, v := range cardValues {
+		tmp := strings.Replace(string(h), "J", string(v), -1)
+		val := getHandValue(Hand(tmp))
+		if val > max {
+			max = val
+		}
+	}
+	return
+}
+
+func getHandValue(h Hand) int {
+	vals := make(map[rune]int)
+	for _, card := range h {
+		vals[card]++
+	}
+	var count []int
+	for _, v := range vals {
+		count = append(count, v)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(count)))
+
+	switch count[0] {
+	case 5:
 		return 7
-	}
-	if fours == 1 {
+	case 4:
 		return 6
-	}
-	if threes == 1 && pairs == 1 {
-		return 5
-	}
-	if threes == 1 {
+	case 3:
+		if count[1] == 2 {
+			return 5
+		}
 		return 4
-	}
-	if pairs == 2 {
-		return 3
-	}
-	if pairs == 1 {
+	case 2:
+		if count[1] == 2 {
+			return 3
+		}
 		return 2
+	default:
+		return 1
 	}
-	return 1
 }
