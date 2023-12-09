@@ -63,7 +63,7 @@ func extrapolateNextValue(history []int) int {
 		}
 	}
 	for i := len(sequences) - 2; i >= 0; i-- {
-		sequences[i] = append(sequences[i], sequences[i][len(sequences[i])-1]+sequences[i+1][len(sequences[i+1])-1])
+		sequences[i] = append([]int{sequences[i][0] - sequences[i+1][0]}, sequences[i]...)
 	}
-	return sequences[0][len(sequences[0])-1]
+	return sequences[0][0]
 }
