@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	_ "strings"
 )
 
 type position struct {
@@ -13,8 +12,8 @@ type position struct {
 
 func main() {
 	galaxies, _ := readGalaxies("2023/day11/src/input.txt")
-	expandedGalaxies := expandGalaxies(galaxies)
-	totalDistance := sumOfDistances(expandedGalaxies)
+	emptyRows, emptyCols := findEmptyRowsAndColumns(galaxies)
+	totalDistance := sumOfExpandedDistances(galaxies, emptyRows, emptyCols, 1000000)
 	fmt.Println("Total distance:", totalDistance)
 }
 
@@ -37,39 +36,71 @@ func readGalaxies(filePath string) ([]position, error) {
 	return galaxies, nil
 }
 
-func expandGalaxies(galaxies []position) []position {
+func findEmptyRowsAndColumns(galaxies []position) (map[int]bool, map[int]bool) {
 	rows, cols := make(map[int]bool), make(map[int]bool)
 	for _, g := range galaxies {
 		rows[g.row] = true
 		cols[g.col] = true
 	}
-	for i, g := range galaxies {
-		for r := 0; r < g.row; r++ {
-			if !rows[r] {
-				galaxies[i].row++
-			}
-		}
-		for c := 0; c < g.col; c++ {
-			if !cols[c] {
-				galaxies[i].col++
-			}
+	emptyRows, emptyCols := make(map[int]bool), make(map[int]bool)
+	for r := 0; r <= getMaxRow(galaxies); r++ {
+		if !rows[r] {
+			emptyRows[r] = true
 		}
 	}
-	return galaxies
+	for c := 0; c <= getMaxCol(galaxies); c++ {
+		if !cols[c] {
+			emptyCols[c] = true
+		}
+	}
+	return emptyRows, emptyCols
 }
 
-func sumOfDistances(galaxies []position) int {
-	var sum int
+func getMaxRow(galaxies []position) int {
+	maxRow := 0
+	for _, g := range galaxies {
+		if g.row > maxRow {
+			maxRow = g.row
+		}
+	}
+	return maxRow
+}
+
+func getMaxCol(galaxies []position) int {
+	maxCol := 0
+	for _, g := range galaxies {
+		if g.col > maxCol {
+			maxCol = g.col
+		}
+	}
+	return maxCol
+}
+
+func sumOfExpandedDistances(galaxies []position, emptyRows, emptyCols map[int]bool, factor int) int64 {
+	var sum int64
 	for i, g1 := range galaxies {
 		for _, g2 := range galaxies[i+1:] {
-			sum += manhattanDistance(g1, g2)
+			sum += expandedManhattanDistance(g1, g2, emptyRows, emptyCols, factor)
 		}
 	}
 	return sum
 }
 
-func manhattanDistance(p1, p2 position) int {
-	return abs(p1.row-p2.row) + abs(p1.col-p2.col)
+func expandedManhattanDistance(p1, p2 position, emptyRows, emptyCols map[int]bool, factor int) int64 {
+	rowDistance := int64(abs(p1.row - p2.row))
+	colDistance := int64(abs(p1.col - p2.col))
+
+	for r := min(p1.row, p2.row); r < max(p1.row, p2.row); r++ {
+		if emptyRows[r] {
+			rowDistance += int64(factor - 1)
+		}
+	}
+	for c := min(p1.col, p2.col); c < max(p1.col, p2.col); c++ {
+		if emptyCols[c] {
+			colDistance += int64(factor - 1)
+		}
+	}
+	return rowDistance + colDistance
 }
 
 func abs(x int) int {
@@ -77,4 +108,18 @@ func abs(x int) int {
 		return -x
 	}
 	return x
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
