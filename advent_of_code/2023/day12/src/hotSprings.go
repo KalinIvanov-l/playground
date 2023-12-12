@@ -48,6 +48,15 @@ func solve(lava string, nums []int, has bool) int {
 	return result
 }
 
+func unfoldConditions(lava string, nums []int) (string, []int) {
+	unfoldedLava := strings.Join([]string{lava, lava, lava, lava, lava}, "?")
+	var unfoldedNums []int
+	for i := 0; i < 5; i++ {
+		unfoldedNums = append(unfoldedNums, nums...)
+	}
+	return unfoldedLava, unfoldedNums
+}
+
 func main() {
 	cache = make(map[key]int)
 	file, _ := os.Open("2023/day12/src/input.txt")
@@ -57,14 +66,14 @@ func main() {
 	total := 0
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), " ")
-		lava := parts[0]
-		numsStr := strings.Split(parts[1], ",")
+		lava, numsStr := parts[0], strings.Split(parts[1], ",")
 		var nums []int
 		for _, s := range numsStr {
 			n, _ := strconv.Atoi(s)
 			nums = append(nums, n)
 		}
-		total += solve(lava, nums, false)
+		unfoldedLava, unfoldedNums := unfoldConditions(lava, nums)
+		total += solve(unfoldedLava, unfoldedNums, false)
 	}
-	fmt.Println("Total number of arrangements:", total)
+	fmt.Println("Total number of arrangements after unfolding:", total)
 }
