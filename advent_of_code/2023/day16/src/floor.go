@@ -54,8 +54,29 @@ var (
 
 func main() {
 	grid, _ := readInput("2023/day16/src/input.txt")
-	result := simulateBeam(grid)
-	fmt.Println("Number of energized tiles:", result)
+	energizedMax := -1
+	for y := range grid {
+		count := simulateBeam(grid, Point{X: -1, Y: y}, Right)
+		if count > energizedMax {
+			energizedMax = count
+		}
+		count = simulateBeam(grid, Point{X: len(grid[0]), Y: y}, Left)
+		if count > energizedMax {
+			energizedMax = count
+		}
+	}
+	for x := range grid[0] {
+		count := simulateBeam(grid, Point{X: x, Y: -1}, Down)
+		if count > energizedMax {
+			energizedMax = count
+		}
+
+		count = simulateBeam(grid, Point{X: x, Y: len(grid)}, Up)
+		if count > energizedMax {
+			energizedMax = count
+		}
+	}
+	fmt.Println("Maximum number of energized tiles:", energizedMax)
 }
 
 func readInput(filename string) ([][]rune, error) {
@@ -70,12 +91,12 @@ func readInput(filename string) ([][]rune, error) {
 	return grid, scanner.Err()
 }
 
-func simulateBeam(grid [][]rune) int {
+func simulateBeam(grid [][]rune, startPosition Point, startDir Direction) int {
 	energized := make(map[Point]map[Direction]bool)
 	beams := []struct {
 		Position Point
 		Dir      Direction
-	}{{Position: Point{X: -1, Y: 0}, Dir: Right}}
+	}{{Position: startPosition, Dir: startDir}}
 
 	for len(beams) > 0 {
 		beam := beams[len(beams)-1]
