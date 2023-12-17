@@ -2,121 +2,149 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"math"
 	"os"
 )
 
-type Position struct {
+type Limits struct {
+	from, to int
+}
+
+var (
+	LimitsA = Limits{0, 3}
+	LimitsB = Limits{3, 10}
+)
+
+type Vec struct {
 	x, y int
 }
 
-type State struct {
-	pos   Position
-	dir   Position
-	steps int
-	cost  int
+func (v *Vec) add(o Vec) {
+	v.x += o.x
+	v.y += o.y
 }
 
-type PriorityQueue []*State
+type Dirname int
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+const (
+	Down Dirname = iota
+	Right
+	Up
+	Left
+)
 
-func (pq PriorityQueue) Less(i, j int) bool {
-	return pq[i].cost < pq[j].cost
+var dirs = [4]Vec{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+var perp = [4][2]Dirname{{Left, Right}, {Down, Up}, {Right, Left}, {Up, Down}}
+
+type Node struct {
+	loss  int
+	links [4][10]Link // Using 10 as the maximum size for simplicity
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
+type Link struct {
+	n        *Node
+	loss     int
+	bestLoss int
 }
 
-func (pq *PriorityQueue) Push(x interface{}) {
-	item := x.(*State)
-	*pq = append(*pq, item)
+type BFSNode struct {
+	n       *Node
+	fromDir Dirname
+	loss    int
 }
 
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	old[n-1] = nil
-	*pq = old[0 : n-1]
-	return item
+func bfs(start BFSNode, limits Limits, level [][]Node) {
+	queue := []BFSNode{start}
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		for _, nextDirName := range perp[current.fromDir] {
+			for i := limits.from; i < limits.to; i++ {
+				link := current.n.links[nextDirName][i]
+				if link.n == nil {
+					break
+				}
+				if current.loss >= link.bestLoss {
+					continue
+				}
+				link.bestLoss = current.loss
+				queue = append(queue, BFSNode{link.n, nextDirName, current.loss + link.loss})
+			}
+		}
+	}
+}
+
+func minLoss(n Node, limits Limits) int {
+	min := int(^uint(0) >> 1) // Max int
+	for _, links := range n.links {
+		for i := limits.from; i < limits.to; i++ {
+			link := links[i]
+			if link.n == nil {
+				break
+			}
+			if link.bestLoss < min {
+				min = link.bestLoss
+			}
+		}
+	}
+	return min
+}
+
+func fillLinks(level [][]Node) {
+	maxY, maxX := len(level), len(level[0])
+	for y := range level {
+		for x := range level[y] {
+			cur := &level[y][x]
+			for d, dir := range dirs {
+				loss := 0
+				pos := Vec{x, y}
+				for i := 0; i < LimitsB.to; i++ {
+					pos.add(dir)
+					if pos.x < 0 || pos.y < 0 || pos.x >= maxX || pos.y >= maxY {
+						break
+					}
+					n := &level[pos.y][pos.x]
+					loss += n.loss
+					cur.links[d][i] = Link{n: n, loss: loss, bestLoss: math.MaxInt32}
+				}
+			}
+		}
+	}
 }
 
 func main() {
 	file, err := os.Open("2023/day17/src/input.txt")
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	costs := make(map[Position]int)
-	maxX, maxY := 0, 0
-	for y := 0; scanner.Scan(); y++ {
-		line := scanner.Text()
-		for x, c := range line {
-			costs[Position{x, y}] = int(c - '0')
-			maxX = max(maxX, x)
+	var level [][]Node
+	for scanner.Scan() {
+		var row []Node
+		for _, c := range scanner.Text() {
+			row = append(row, Node{loss: int(c - '0')})
 		}
-		maxY = max(maxY, y)
+		level = append(level, row)
 	}
 
-	leastHeatLoss := solve(costs, Position{maxX, maxY})
-	fmt.Println("Least heat loss:", leastHeatLoss)
-}
-
-func solve(costs map[Position]int, target Position) int {
-	directions := []Position{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
-	costMap := make(map[State]int)
-	pq := make(PriorityQueue, 0)
-	heap.Init(&pq)
-
-	for _, d := range directions {
-		startState := State{Position{0, 0}, d, 1, 0}
-		costMap[startState] = 0
-		heap.Push(&pq, &startState)
+	if len(level) == 0 || len(level[0]) == 0 {
+		fmt.Println("Empty or invalid grid")
+		return
 	}
 
-	for pq.Len() > 0 {
-		current := heap.Pop(&pq).(*State)
-		if current.pos == target && current.steps <= 3 {
-			return costMap[*current]
-		}
+	// Fill links
+	fillLinks(level)
 
-		for _, d := range directions {
-			newPos := Position{current.pos.x + d.x, current.pos.y + d.y}
-			if _, exists := costs[newPos]; !exists {
-				continue
-			}
+	// Run BFS and calculate minimum loss for each limit
+	startNode := &level[0][0]
+	bfs(BFSNode{n: startNode, fromDir: Right, loss: 0}, LimitsA, level)
+	bfs(BFSNode{n: startNode, fromDir: Down, loss: 0}, LimitsA, level)
+	fmt.Println("Minimum Heat Loss (Limits A):", minLoss(level[len(level)-1][len(level[0])-1], LimitsA))
 
-			newSteps := 1
-			if current.dir == d {
-				newSteps = current.steps + 1
-			}
-
-			if newSteps > 3 {
-				continue
-			}
-
-			newCost := costMap[*current] + costs[newPos]
-			newState := State{newPos, d, newSteps, newCost}
-			if c, exists := costMap[newState]; !exists || newCost < c {
-				costMap[newState] = newCost
-				heap.Push(&pq, &newState)
-			}
-		}
-	}
-
-	return math.MaxInt
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	bfs(BFSNode{n: startNode, fromDir: Right, loss: 0}, LimitsB, level)
+	bfs(BFSNode{n: startNode, fromDir: Down, loss: 0}, LimitsB, level)
+	fmt.Println("Minimum Heat Loss (Limits B):", minLoss(level[len(level)-1][len(level[0])-1], LimitsB))
 }
