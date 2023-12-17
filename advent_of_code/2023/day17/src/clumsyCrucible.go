@@ -1,150 +1,107 @@
 package main
 
 import (
-	"bufio"
+	"container/heap"
 	"fmt"
-	"math"
-	"os"
+	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
-type Limits struct {
-	from, to int
-}
-
-var (
-	LimitsA = Limits{0, 3}
-	LimitsB = Limits{3, 10}
-)
-
-type Vec struct {
-	x, y int
-}
-
-func (v *Vec) add(o Vec) {
-	v.x += o.x
-	v.y += o.y
-}
-
-type Dirname int
-
-const (
-	Down Dirname = iota
-	Right
-	Up
-	Left
-)
-
-var dirs = [4]Vec{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
-var perp = [4][2]Dirname{{Left, Right}, {Down, Up}, {Right, Left}, {Up, Down}}
-
-type Node struct {
+type State struct {
+	pos   complex128
+	dir   complex128
 	loss  int
-	links [4][10]Link // Using 10 as the maximum size for simplicity
+	index int
 }
 
-type Link struct {
-	n        *Node
-	loss     int
-	bestLoss int
+type PriorityQueue []*State
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	return pq[i].loss < pq[j].loss
 }
 
-type BFSNode struct {
-	n       *Node
-	fromDir Dirname
-	loss    int
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
 }
 
-func bfs(start BFSNode, limits Limits, level [][]Node) {
-	queue := []BFSNode{start}
-	for len(queue) > 0 {
-		current := queue[0]
-		queue = queue[1:]
-		for _, nextDirName := range perp[current.fromDir] {
-			for i := limits.from; i < limits.to; i++ {
-				link := current.n.links[nextDirName][i]
-				if link.n == nil {
-					break
-				}
-				if current.loss >= link.bestLoss {
-					continue
-				}
-				link.bestLoss = current.loss
-				queue = append(queue, BFSNode{link.n, nextDirName, current.loss + link.loss})
-			}
-		}
-	}
+func (pq *PriorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*State)
+	item.index = n
+	*pq = append(*pq, item)
 }
 
-func minLoss(n Node, limits Limits) int {
-	min := int(^uint(0) >> 1) // Max int
-	for _, links := range n.links {
-		for i := limits.from; i < limits.to; i++ {
-			link := links[i]
-			if link.n == nil {
-				break
-			}
-			if link.bestLoss < min {
-				min = link.bestLoss
-			}
-		}
-	}
-	return min
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil
+	item.index = -1
+	*pq = old[0 : n-1]
+	return item
 }
 
-func fillLinks(level [][]Node) {
-	maxY, maxX := len(level), len(level[0])
-	for y := range level {
-		for x := range level[y] {
-			cur := &level[y][x]
-			for d, dir := range dirs {
-				loss := 0
-				pos := Vec{x, y}
-				for i := 0; i < LimitsB.to; i++ {
-					pos.add(dir)
-					if pos.x < 0 || pos.y < 0 || pos.x >= maxX || pos.y >= maxY {
-						break
-					}
-					n := &level[pos.y][pos.x]
-					loss += n.loss
-					cur.links[d][i] = Link{n: n, loss: loss, bestLoss: math.MaxInt32}
-				}
-			}
-		}
-	}
-}
-
-func main() {
-	file, err := os.Open("2023/day17/src/input.txt")
+func readInput(filename string) map[complex128]int {
+	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	var level [][]Node
-	for scanner.Scan() {
-		var row []Node
-		for _, c := range scanner.Text() {
-			row = append(row, Node{loss: int(c - '0')})
+	lines := strings.Split(string(bytes), "\n")
+	grid := make(map[complex128]int)
+	for y, line := range lines {
+		for x, char := range line {
+			value, err := strconv.Atoi(string(char))
+			if err != nil {
+				panic(err)
+			}
+			grid[complex(float64(x), float64(y))] = value
 		}
-		level = append(level, row)
+	}
+	return grid
+}
+
+func main() {
+	grid := readInput("2023/day17/src/input.txt")
+	target := complex128(0)
+	for pos := range grid {
+		if real(pos) > real(target) || imag(pos) > imag(target) {
+			target = pos
+		}
 	}
 
-	if len(level) == 0 || len(level[0]) == 0 {
-		fmt.Println("Empty or invalid grid")
-		return
+	pq := make(PriorityQueue, 0)
+	heap.Init(&pq)
+	heap.Push(&pq, &State{0, 1, 0, 0})
+	heap.Push(&pq, &State{0, 1i, 0, 0})
+
+	visited := make(map[complex128]map[complex128]bool)
+
+	for pq.Len() > 0 {
+		state := heap.Pop(&pq).(*State)
+		if state.pos == target {
+			fmt.Println("Minimum heat loss:", state.loss)
+			return
+		}
+		if _, ok := visited[state.pos]; !ok {
+			visited[state.pos] = make(map[complex128]bool)
+		}
+		if _, visited := visited[state.pos][state.dir]; visited {
+			continue
+		}
+		visited[state.pos][state.dir] = true
+
+		for _, dirChange := range []complex128{1, -1} {
+			newDir := state.dir * dirChange
+			newPos := state.pos + newDir
+			if _, exists := grid[newPos]; exists {
+				newLoss := state.loss + grid[newPos]
+				heap.Push(&pq, &State{newPos, newDir, newLoss, 0})
+			}
+		}
 	}
-
-	// Fill links
-	fillLinks(level)
-
-	// Run BFS and calculate minimum loss for each limit
-	startNode := &level[0][0]
-	bfs(BFSNode{n: startNode, fromDir: Right, loss: 0}, LimitsA, level)
-	bfs(BFSNode{n: startNode, fromDir: Down, loss: 0}, LimitsA, level)
-	fmt.Println("Minimum Heat Loss (Limits A):", minLoss(level[len(level)-1][len(level[0])-1], LimitsA))
-
-	bfs(BFSNode{n: startNode, fromDir: Right, loss: 0}, LimitsB, level)
-	bfs(BFSNode{n: startNode, fromDir: Down, loss: 0}, LimitsB, level)
-	fmt.Println("Minimum Heat Loss (Limits B):", minLoss(level[len(level)-1][len(level[0])-1], LimitsB))
 }
