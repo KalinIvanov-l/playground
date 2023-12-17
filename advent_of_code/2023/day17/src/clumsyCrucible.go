@@ -1,116 +1,183 @@
 package main
 
 import (
-	"container/heap"
+	"bufio"
 	"fmt"
-	"io/ioutil"
+	"os"
+	"sort"
 	"strconv"
-	"strings"
 )
 
-// State represents the current state in the pathfinding process.
-type State struct {
-	loss, chain, direction int
-	pos                    complex128
-}
+func readInput(filename string) ([][]rune, error) {
+	file, _ := os.Open(filename)
+	defer file.Close()
 
-// PriorityQueue implements heap.Interface and holds States.
-type PriorityQueue []*State
-
-func (pq PriorityQueue) Len() int { return len(pq) }
-
-func (pq PriorityQueue) Less(i, j int) bool {
-	return pq[i].loss < pq[j].loss
-}
-
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-
-func (pq *PriorityQueue) Push(x interface{}) {
-	*pq = append(*pq, x.(*State))
-}
-
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	*pq = old[0 : n-1]
-	return item
-}
-
-// readGrid reads the grid from a file and returns a map with the heat loss for each coordinate.
-func readGrid(filename string) (map[complex128]int, complex128) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		panic(err)
+	var grid [][]rune
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		grid = append(grid, []rune(scanner.Text()))
 	}
-	lines := strings.Split(string(bytes), "\n")
-	grid := make(map[complex128]int)
-	var maxX, maxY int
-	for y, line := range lines {
-		for x, char := range line {
-			value, err := strconv.Atoi(string(char))
-			if err != nil {
-				panic(err)
-			}
-			grid[complex(float64(x), float64(y))] = value
-			if x > maxX {
-				maxX = x
-			}
-		}
-		maxY = y
-	}
-	end := complex(float64(maxX), float64(maxY))
-	return grid, end
+	return grid, scanner.Err()
 }
 
-// findPath implements the pathfinding logic using a priority queue.
-func findPath(grid map[complex128]int, start, end complex128, a, b, c int) int {
-	pq := &PriorityQueue{}
-	heap.Init(pq)
-	heap.Push(pq, &State{0, 1, 0, start})
-	best := make(map[complex128]map[int]map[int]int)
+type position struct {
+	x         int
+	y         int
+	accWeight int
+	up        int
+	down      int
+	left      int
+	right     int
+}
 
-	for pq.Len() > 0 {
-		current := heap.Pop(pq).(*State)
-		if current.pos == end && current.chain >= a {
-			return current.loss
-		}
-
-		if _, ok := best[current.pos]; !ok {
-			best[current.pos] = make(map[int]map[int]int)
-		}
-		if _, ok := best[current.pos][current.direction]; !ok {
-			best[current.pos][current.direction] = make(map[int]int)
-		}
-		if val, ok := best[current.pos][current.direction][current.chain]; ok && val <= current.loss {
-			continue
-		}
-		best[current.pos][current.direction][current.chain] = current.loss
-
-		directions := []complex128{1, 1i, -1, -1i}
-		for e, d := range directions {
-			nextChain := 1
-			if e%2 == 0 {
-				nextChain = current.chain + 1
-			}
-			if (e%2 == 0 && current.chain < b) || (e%2 != 0 && current.chain == c) {
-				continue
-			}
-			neighbour := current.pos + d
-			if loss, ok := grid[neighbour]; ok {
-				heap.Push(pq, &State{current.loss + loss, nextChain, e, neighbour})
-			}
+func addPositionIfValid(pq *[]position, newX, newY, newLeft, newRight, newUp, newDown, weight int, s []string, visited map[string]int) {
+	if newX >= 0 && newY >= 0 && newX < len(s[0]) && newY < len(s) {
+		key := fmt.Sprintf("%d,%d,%d,%d,%d,%d", newX, newY, newUp, newDown, newLeft, newRight)
+		if v, ok := visited[key]; !ok || ok && v > weight {
+			visited[key] = weight
+			*pq = append(*pq, position{x: newX, y: newY, up: newUp, down: newDown, left: newLeft, right: newRight, accWeight: weight})
 		}
 	}
+}
 
-	return -1
+func findShortestPath(s []string) int {
+	var (
+		priorityQueue []position
+		sx, sy        = 0, 0
+		dx, dy        = len(s[0]) - 1, len(s) - 1
+	)
+	priorityQueue = append(priorityQueue, position{x: sx + 1, y: sy, right: 1})
+	priorityQueue = append(priorityQueue, position{x: sx, y: sy + 1, down: 1})
+	visited := make(map[string]int)
+
+	for len(priorityQueue) > 0 {
+		sort.SliceStable(priorityQueue, func(i, j int) bool { return priorityQueue[i].accWeight < priorityQueue[j].accWeight })
+
+		entry := priorityQueue[0]
+		priorityQueue = priorityQueue[1:]
+
+		iVal, _ := strconv.Atoi(string(s[entry.y][entry.x]))
+		weight := entry.accWeight + iVal
+		if entry.x == dx && entry.y == dy {
+			return weight
+		}
+
+		if entry.x > 0 && entry.left < 3 && entry.right == 0 {
+			addPositionIfValid(&priorityQueue, entry.x-1, entry.y, entry.left+1, 0, 0, 0, weight, s, visited)
+		}
+		if entry.x < len(s[0])-1 && entry.right < 3 && entry.left == 0 {
+			addPositionIfValid(&priorityQueue, entry.x+1, entry.y, 0, entry.right+1, 0, 0, weight, s, visited)
+		}
+		if entry.y > 0 && entry.up < 3 && entry.down == 0 {
+			addPositionIfValid(&priorityQueue, entry.x, entry.y-1, 0, 0, entry.up+1, 0, weight, s, visited)
+		}
+		if entry.y < len(s)-1 && entry.down < 3 && entry.up == 0 {
+			addPositionIfValid(&priorityQueue, entry.x, entry.y+1, 0, 0, 0, entry.down+1, weight, s, visited)
+		}
+	}
+	return 0
+}
+
+func findShortestPath2(s []string, minSteps, maxSteps int) int {
+	var (
+		priorityQueue []position
+		sx            = 0
+		sy            = 0
+		dx            = len(s[0]) - 1
+		dy            = len(s) - 1
+	)
+	priorityQueue = append(priorityQueue, position{
+		x:     sx + 1,
+		y:     0,
+		up:    0,
+		down:  0,
+		left:  0,
+		right: 1,
+	})
+	priorityQueue = append(priorityQueue, position{
+		x:     0,
+		y:     sy + 1,
+		up:    0,
+		down:  1,
+		left:  0,
+		right: 0,
+	})
+	visited := make(map[string]int)
+	for len(priorityQueue) > 0 {
+		sort.SliceStable(priorityQueue, func(i, j int) bool {
+			return priorityQueue[i].accWeight < priorityQueue[j].accWeight
+		})
+
+		entry := priorityQueue[0]
+		if len(priorityQueue) > 1 {
+			priorityQueue = priorityQueue[1:]
+		} else {
+			priorityQueue = []position{}
+		}
+
+		iVal, _ := strconv.Atoi(string(s[entry.y][entry.x]))
+		weight := entry.accWeight + iVal
+		if entry.x == dx && entry.y == dy && (entry.left >= minSteps || entry.right >= minSteps || entry.up >= minSteps || entry.down >= minSteps) {
+			return weight
+		}
+		key := fmt.Sprintf("%d,%d,%d,%d,%d,%d", entry.x, entry.y, entry.up, entry.down, entry.left, entry.right)
+		if v, ok := visited[key]; !ok || ok && v > weight {
+			visited[key] = weight
+			if entry.x > 0 && entry.right == 0 && (((entry.up >= minSteps || entry.down >= minSteps) && entry.left == 0) || entry.left > 0 && entry.left < maxSteps) {
+				priorityQueue = append(priorityQueue, position{
+					x:         entry.x - 1,
+					y:         entry.y,
+					up:        0,
+					down:      0,
+					left:      entry.left + 1,
+					right:     0,
+					accWeight: weight,
+				})
+			}
+			if entry.x < len(s[0])-1 && entry.left == 0 && (((entry.up >= minSteps || entry.down >= minSteps) && entry.right == 0) || entry.right > 0 && entry.right < maxSteps) {
+				priorityQueue = append(priorityQueue, position{
+					x:         entry.x + 1,
+					y:         entry.y,
+					up:        0,
+					down:      0,
+					left:      0,
+					right:     entry.right + 1,
+					accWeight: weight,
+				})
+			}
+			if entry.y > 0 && entry.down == 0 && (((entry.left >= minSteps || entry.right >= minSteps) && entry.up == 0) || entry.up > 0 && entry.up < maxSteps) {
+				priorityQueue = append(priorityQueue, position{
+					x:         entry.x,
+					y:         entry.y - 1,
+					up:        entry.up + 1,
+					down:      0,
+					left:      0,
+					right:     0,
+					accWeight: weight,
+				})
+			}
+			if entry.y < len(s)-1 && entry.up == 0 && (((entry.left >= minSteps || entry.right >= minSteps) && entry.down == 0) || entry.down > 0 && entry.down < maxSteps) {
+				priorityQueue = append(priorityQueue, position{
+					x:         entry.x,
+					y:         entry.y + 1,
+					up:        0,
+					down:      entry.down + 1,
+					left:      0,
+					right:     0,
+					accWeight: weight,
+				})
+			}
+		}
+	}
+	return 0
 }
 
 func main() {
-	grid, end := readGrid("2023/day17/src/input.txt")
-	start := complex(0, 0)
-	fmt.Println("Minimum heat loss:", findPath(grid, start, end, 0, 0, 3))
-	fmt.Println("Minimum heat loss:", findPath(grid, start, end, 4, 4, 10))
+	gridRunes, _ := readInput("2023/day17/src/input.txt")
+	grid := make([]string, len(gridRunes))
+	for i, line := range gridRunes {
+		grid[i] = string(line)
+	}
+	fmt.Println(findShortestPath(grid))
+	fmt.Println(findShortestPath2(grid, 4, 10))
 }
