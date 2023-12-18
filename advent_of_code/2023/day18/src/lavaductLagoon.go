@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -13,57 +12,69 @@ type Point struct {
 	x, y int
 }
 
-var dirMap = map[string]Point{
-	"U": {1, 0},
-	"D": {-1, 0},
-	"R": {0, 1},
-	"L": {0, -1},
-}
-
 func main() {
 	file, _ := os.Open("2023/day18/src/input.txt")
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	var xs, ys []int
-	loc := Point{0, 0}
-	pts := make(map[Point]bool)
-	pts[loc] = true
+	polygon := []Point{{0, 0}}
+	pCnt := 0
+
+	deltas := map[string]Point{
+		"R": {1, 0},
+		"L": {-1, 0},
+		"U": {0, -1},
+		"D": {0, 1},
+	}
+
+	hex2d := map[string]string{
+		"0": "R",
+		"1": "D",
+		"2": "L",
+		"3": "U",
+	}
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line == "" {
-			continue
-		}
 		parts := strings.Fields(line)
-		curDir := dirMap[parts[0]]
-		curLen, _ := strconv.Atoi(parts[1])
-		for i := 0; i <= curLen; i++ {
-			newPoint := Point{loc.x + i*curDir.x, loc.y + i*curDir.y}
-			pts[newPoint] = true
-		}
-		loc.x += curLen * curDir.x
-		loc.y += curLen * curDir.y
-		xs = append(xs, loc.x)
-		ys = append(ys, loc.y)
-	}
-	A := polyArea(xs, ys)
-	b := len(pts)
-	if b%2 != 0 {
-		panic("Boundary points count should be even")
-	}
-	I := int(A + 1 - float64(b)/2)
 
-	totalCapacity := I + b
+		color := parts[2]
+		direction := hex2d[string(color[len(color)-2])]
+		delta := deltas[direction]
+		steps, _ := strconv.ParseInt(color[2:len(color)-2], 16, 64)
+
+		pCnt += int(steps)
+		lastPoint := polygon[len(polygon)-1]
+		polygon = append(polygon, Point{lastPoint.x + delta.x*int(steps), lastPoint.y + delta.y*int(steps)})
+	}
+
+	totalCapacity := solve(polygon) + pCnt/2 + 1
 	fmt.Printf("The lagoon can hold %d cubic meters of lava.\n", totalCapacity)
 }
 
-func polyArea(xs, ys []int) float64 {
-	var area float64
-	n := len(xs)
-	for i := 0; i < n; i++ {
-		j := (i + 1) % n
-		area += float64(xs[i]*ys[j] - xs[j]*ys[i])
+func solve(points []Point) int {
+	N := len(points)
+	firstx, firsty := points[0].x, points[0].y
+	prevx, prevy := firstx, firsty
+	res := 0
+
+	for i := 1; i < N; i++ {
+		nextx, nexty := points[i].x, points[i].y
+		res += getInfo(prevx, prevy, nextx, nexty)
+		prevx = nextx
+		prevy = nexty
 	}
-	return math.Abs(area) / 2
+	res += getInfo(prevx, prevy, firstx, firsty)
+	return abs(res) / 2
+}
+
+func getInfo(x1, y1, x2, y2 int) int {
+	return x1*y2 - y1*x2
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
