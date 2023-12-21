@@ -1,135 +1,96 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strings"
 )
 
-const inputFile = "2023/day20/src/input.txt"
-
 type Module struct {
-	Targets    []string
-	IsFlipFlop bool
-	IsConj     bool
-	State      bool
-	ConjInputs map[string]bool
+	Type   rune
+	Dests  []string
+	Memory map[string]bool
 }
 
-func ReadModules() map[string]*Module {
-	file, _ := os.Open(inputFile)
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	modules := make(map[string]*Module)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, " -> ")
-		if len(parts) != 2 {
-			continue
-		}
-
-		name := parts[0]
-		targets := strings.Split(parts[1], ", ")
-		flipFlop := strings.HasPrefix(name, "%")
-		conj := strings.HasPrefix(name, "&")
-
-		if flipFlop || conj {
-			name = name[1:]
-		}
-
-		module := &Module{
-			Targets:    targets,
-			IsFlipFlop: flipFlop,
-			IsConj:     conj,
-			State:      false,
-		}
-		if conj {
-			module.ConjInputs = make(map[string]bool)
-		}
-		modules[name] = module
-	}
-
-	for _, module := range modules {
-		if module.IsConj {
-			for _, target := range module.Targets {
-				if targetModule, exists := modules[target]; exists && targetModule.IsConj {
-					module.ConjInputs[target] = false
-				}
-			}
-		}
-	}
-	return modules
-}
-
-func SimulatePulses(modules map[string]*Module) int {
-	lowPulses, highPulses := 0, 0
-
-	for i := 0; i < 1000; i++ {
-		queue := []struct {
-			Name   string
-			Signal bool
-		}{{Name: "broadcaster", Signal: false}}
-
-		for len(queue) > 0 {
-			current := queue[0]
-			queue = queue[1:]
-
-			if current.Signal {
-				highPulses++
-			} else {
-				lowPulses++
-			}
-
-			module, exists := modules[current.Name]
-			if !exists {
-				continue
-			}
-
-			if module.IsFlipFlop {
-				if !current.Signal {
-					module.State = !module.State
-					newSignal := module.State
-					for _, target := range module.Targets {
-						queue = append(queue, struct {
-							Name   string
-							Signal bool
-						}{Name: target, Signal: newSignal})
-					}
-				}
-			} else if module.IsConj {
-				module.ConjInputs[current.Name] = current.Signal
-				allHigh := true
-				for _, v := range module.ConjInputs {
-					if !v {
-						allHigh = false
-						break
-					}
-				}
-				newSignal := !allHigh
-				for _, target := range module.Targets {
-					queue = append(queue, struct {
-						Name   string
-						Signal bool
-					}{Name: target, Signal: newSignal})
-				}
-			} else {
-				for _, target := range module.Targets {
-					queue = append(queue, struct {
-						Name   string
-						Signal bool
-					}{Name: target, Signal: current.Signal})
-				}
-			}
-		}
-	}
-	return lowPulses * highPulses
+type Pulse struct {
+	Source string
+	Value  bool
+	Dest   string
 }
 
 func main() {
-	modules := ReadModules()
-	result := SimulatePulses(modules)
-	fmt.Printf("Part 1: %d\n", result)
+	input, _ := os.ReadFile("2023/day20/src/input.txt")
+
+	modules := map[string]Module{}
+	for _, s := range strings.Split(strings.TrimSpace(string(input)), "\n") {
+		split := strings.Split(s, " -> ")
+
+		name := split[0][1:]
+		if split[0] == "broadcaster" {
+			name = split[0]
+		}
+
+		modules[name] = Module{
+			Type:   rune(split[0][0]),
+			Dests:  strings.Split(split[1], ", "),
+			Memory: map[string]bool{},
+		}
+	}
+
+	inputs := func(src string) (s []string) {
+		for k, m := range modules {
+			for _, d := range m.Dests {
+				if d == src {
+					s = append(s, k)
+				}
+			}
+		}
+		return
+	}
+
+	counts, cycles := map[bool]int{}, map[string]int{}
+	for i := 1; len(cycles) != len(inputs(inputs("rx")[0])); i++ {
+		pulses := []Pulse{{"button", false, "broadcaster"}}
+		for len(pulses) > 0 {
+			p := pulses[0]
+			pulses, counts[p.Value] = pulses[1:], counts[p.Value]+1
+
+			m := modules[p.Dest]
+			switch m.Type {
+			case '%':
+				if p.Value {
+					continue
+				}
+				m.Memory[p.Dest] = !m.Memory[p.Dest]
+			case '&':
+				m.Memory[p.Source], m.Memory[p.Dest] = p.Value, false
+				for _, i := range inputs(p.Dest) {
+					if !m.Memory[i] {
+						m.Memory[p.Dest] = true
+					}
+				}
+			}
+
+			modules[p.Dest] = m
+			for _, d := range m.Dests {
+				pulses = append(pulses, Pulse{p.Dest, m.Memory[p.Dest], d})
+			}
+
+			for _, k := range inputs(inputs("rx")[0]) {
+				if _, ok := cycles[k]; !ok && modules[inputs("rx")[0]].Memory[k] {
+					cycles[k] = i
+				}
+			}
+		}
+
+		if i == 1000 {
+			fmt.Println(counts[false] * counts[true])
+		}
+	}
+
+	part2 := 1
+	for _, v := range cycles {
+		part2 *= v
+	}
+	fmt.Println(part2)
 }
