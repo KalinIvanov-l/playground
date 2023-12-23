@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	_ "strings"
 )
 
 type Point struct {
@@ -80,7 +79,7 @@ func findLongestPath(grid [][]*Point, current, end *Point, visited map[string]bo
 	visited[key] = true
 
 	maxLength := 0
-	directions := getDirections(current.Type)
+	directions := getDirections()
 
 	for _, dir := range directions {
 		nextX, nextY := current.X+dir.X, current.Y+dir.Y
@@ -94,19 +93,8 @@ func findLongestPath(grid [][]*Point, current, end *Point, visited map[string]bo
 	return maxLength
 }
 
-func getDirections(t rune) []*Point {
-	switch t {
-	case '^':
-		return []*Point{{X: 0, Y: -1}}
-	case 'v':
-		return []*Point{{X: 0, Y: 1}}
-	case '<':
-		return []*Point{{X: -1, Y: 0}}
-	case '>':
-		return []*Point{{X: 1, Y: 0}}
-	default:
-		return []*Point{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}}
-	}
+func getDirections() []*Point {
+	return []*Point{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}}
 }
 
 func cloneMap(m map[string]bool) map[string]bool {
