@@ -25,10 +25,6 @@ type Node struct {
 	Children []*Node
 }
 
-func NewNode(p *Point) *Node {
-	return &Node{Point: p}
-}
-
 func (n *Node) AddChild(child *Node) {
 	n.Children = append(n.Children, child)
 }
