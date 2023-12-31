@@ -2,12 +2,10 @@ import json
 
 sample_data = {
     "example data..",
-    "....",
     "...."
 }
 
 num_objects = 10000
-
 filename = "path/to/example_file.txt"
 
 with open(filename, 'w') as file :
