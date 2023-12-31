@@ -27,7 +27,7 @@ public class SnowCalibration {
     var fileName = "java/src/main/resources/input.txt";
     var totalSum = 0;
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+    try (var reader = new BufferedReader(new FileReader(fileName))) {
       String line;
       while ((line = reader.readLine()) != null) {
         totalSum += extractAndFormNumber(line);
