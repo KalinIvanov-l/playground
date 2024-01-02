@@ -10,7 +10,7 @@ public class TopologicalOrdering {
     deque = new ArrayDeque<>();
   }
 
-  public Deque<Vertex> dfs(Vertex vertex) {
+  public void dfs(Vertex vertex) {
     vertex.visited();
 
     for (Vertex vertex1 : vertex.neighbotList()) {
@@ -19,7 +19,6 @@ public class TopologicalOrdering {
       }
       deque.push(vertex);
     }
-    return null;
   }
 
     public Deque<Vertex> getDeque() {
