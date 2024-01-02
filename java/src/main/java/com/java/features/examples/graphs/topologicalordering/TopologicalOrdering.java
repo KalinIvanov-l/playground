@@ -1,8 +1,11 @@
 package com.java.features.examples.graphs.topologicalordering;
 
+import lombok.Getter;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+@Getter
 public class TopologicalOrdering {
   private final Deque<Vertex> deque;
 
@@ -20,8 +23,4 @@ public class TopologicalOrdering {
       deque.push(vertex);
     }
   }
-
-    public Deque<Vertex> getDeque() {
-      return deque;
-    }
-  }
+}
