@@ -1,4 +1,4 @@
-package com.java.features.examples.graphs;
+package com.java.features.examples.graphs.topologicalordering;
 
 import java.util.List;
 
