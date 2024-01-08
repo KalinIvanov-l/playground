@@ -1,5 +1,7 @@
 package com.java.features.examples.graphs.topologicalordering;
 
+import com.java.features.examples.graphs.topologicalordering.shortestpath.Vertex;
+
 import java.util.ArrayList;
 import java.util.List;
 
