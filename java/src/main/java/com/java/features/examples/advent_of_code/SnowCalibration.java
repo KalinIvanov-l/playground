@@ -30,7 +30,7 @@ public class SnowCalibration {
     try (var reader = new BufferedReader(new FileReader(fileName))) {
       String line;
       while ((line = reader.readLine()) != null) {
-        totalSum += extractAndFormNumber(line);
+        totalSum += extractNumberValue(line);
       }
     } catch (IOException e) {
       log.error("Error occurs while reading", e);
@@ -38,7 +38,7 @@ public class SnowCalibration {
     log.info("Total sum of calibration values: {}", totalSum);
   }
 
-  private static int extractAndFormNumber(String line) {
+  private static int extractNumberValue(String line) {
     var numbers = Arrays.stream(line.split("\\W+"))
             .filter(word -> !word.isEmpty())
             .map(word -> word.matches("\\d+") ? word : numberWordsToDigits.get(word.toLowerCase()))
