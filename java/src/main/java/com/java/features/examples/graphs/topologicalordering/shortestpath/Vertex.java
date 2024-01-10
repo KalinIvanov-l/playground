@@ -19,8 +19,8 @@ public class Vertex extends Edge {
   private List<Edge> adjancencyList;
   private int weight;
 
-  public Vertex(String name, Vertex predecessor, int weight) {
-    super(predecessor, weight);
+  public Vertex(String name, Edge edge) {
+    super(edge.getTarget(), edge.getWeight());
     this.name = name;
     minDistance = Integer.MAX_VALUE;
     adjancencyList = new ArrayList<>();
