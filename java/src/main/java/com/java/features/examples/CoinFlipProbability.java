@@ -3,7 +3,7 @@ package com.java.features.examples;
 import java.math.BigInteger;
 import java.util.stream.IntStream;
 
-public class CoinFlipProbability {
+public final class CoinFlipProbability {
 
   private CoinFlipProbability() throws InstantiationException {
     throw new InstantiationException("Should not create an instance of this class");
