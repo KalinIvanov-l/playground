@@ -7,5 +7,6 @@
 ##### other useful-to reduce time when clone large repository
 
 ###### git clone --filter=blob:none <URL>
+###### or-git clone --filter=tree:0
 
 ----
