@@ -1,7 +1,7 @@
 PREFIX : <URL>
 PREFIX inst: <URL>
 
-#Top movies by it's price
+# Top movies by it's price
 
 SELECT distinct ?title ?price
 WHERE {
