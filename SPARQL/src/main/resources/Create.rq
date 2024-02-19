@@ -8,5 +8,6 @@ WHERE {
     ?movie a inst:Movie;
     mdb:title ?title;
     mdb:price ?price;
-} ORDER BY DESC (?price)
-  LIMIT 10
+}
+ORDER BY DESC (?price)
+LIMIT 10
