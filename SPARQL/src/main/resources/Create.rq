@@ -1,6 +1,8 @@
 PREFIX : <URL>
 PREFIX inst: <URL>
 
+#Top movies by it's price
+
 SELECT distinct ?title ?price
 WHERE {
     ?movie a inst:Movie;
