@@ -10,3 +10,6 @@
 ###### or-git clone --filter=tree:0
 
 ----
+
+##### We can work on multiple branches instead of doing stashes and switch branches. Also, this is called virtual branches. For this, we can use GitButler
+- [GitButler](https://gitbutler.com/)
