@@ -1,0 +1,10 @@
+PREFIX : <URL>
+PREFIX inst: <URL>
+
+SELECT distinct ?title ?price
+WHERE {
+    ?movie a inst:Movie;
+    mdb:title ?title;
+    mdb:price ?price;
+} ORDER BY DESC (?price)
+  LIMIT 10
