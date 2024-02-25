@@ -1,0 +1,9 @@
+SELECT DISTINCT ?character1 ?character2
+WHERE {
+  ?character1 a Person.
+  ?character2 a Person.
+  ?character1 foaf:name "Luke Skywalker".
+  ?character2 foaf:name "Darth Vader".
+  ?character1 relatedTo ?character2.
+}
+LIMIT 10
