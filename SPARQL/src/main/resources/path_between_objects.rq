@@ -1,3 +1,5 @@
+#short example
+
 SELECT DISTINCT ?character1 ?character2
 WHERE {
   ?character1 a Person.
