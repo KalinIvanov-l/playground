@@ -1,0 +1,4 @@
+SELECT * {
+    ?p ?s ?o
+}
+LIMIT 100
