@@ -1,0 +1,7 @@
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+#ASK only return true or false
+
+ASK {
+    ?person dbo:salary "3.80000e+1"^^xsd:double
+}
