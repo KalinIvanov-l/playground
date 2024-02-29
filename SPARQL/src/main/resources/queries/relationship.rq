@@ -1,0 +1,6 @@
+SELECT ?relationship
+WHERE {
+    <URI1>
+    ?relationship
+    <URI2>
+}
