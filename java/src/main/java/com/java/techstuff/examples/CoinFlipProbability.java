@@ -1,4 +1,4 @@
-package com.java.features.examples;
+package com.java.techstuff.examples;
 
 import java.math.BigInteger;
 import java.util.stream.IntStream;

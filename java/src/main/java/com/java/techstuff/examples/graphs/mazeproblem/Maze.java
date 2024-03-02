@@ -1,4 +1,4 @@
-package com.java.features.examples.graphs.mazeproblem;
+package com.java.techstuff.examples.graphs.mazeproblem;
 
 import lombok.extern.slf4j.Slf4j;
 

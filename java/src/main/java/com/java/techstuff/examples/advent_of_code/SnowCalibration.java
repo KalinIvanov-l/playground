@@ -1,4 +1,4 @@
-package com.java.features.examples.advent_of_code;
+package com.java.techstuff.examples.advent_of_code;
 
 import lombok.extern.slf4j.Slf4j;
 

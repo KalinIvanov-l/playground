@@ -1,6 +1,6 @@
-package com.java.features.examples.graphs.topologicalordering;
+package com.java.techstuff.examples.graphs.topologicalordering;
 
-import com.java.features.examples.graphs.topologicalordering.shortestpath.Vertex;
+import com.java.techstuff.examples.graphs.topologicalordering.shortestpath.Vertex;
 
 import java.util.Deque;
 

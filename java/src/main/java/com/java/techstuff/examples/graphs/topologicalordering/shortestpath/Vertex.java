@@ -1,4 +1,4 @@
-package com.java.features.examples.graphs.topologicalordering.shortestpath;
+package com.java.techstuff.examples.graphs.topologicalordering.shortestpath;
 
 import lombok.Getter;
 import lombok.Setter;

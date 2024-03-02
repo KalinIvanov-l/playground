@@ -1,4 +1,4 @@
-package com.java.features.examples.graphs;
+package com.java.techstuff.examples.graphs;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;

@@ -1,4 +1,4 @@
-package com.java.features.examples;
+package com.java.techstuff.examples;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
