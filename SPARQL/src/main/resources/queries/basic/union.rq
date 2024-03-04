@@ -12,3 +12,4 @@ WHERE {
          :name ?n .
     }
 }
+ORDER BY ASC(?n)
