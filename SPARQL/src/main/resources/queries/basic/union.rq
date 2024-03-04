@@ -11,5 +11,9 @@ WHERE {
     ?c a :Film ;
          :name ?n .
     }
+    # If want to excluding some names
+    MINUS {
+        ?c :name "EXAMPLE NAME" .
+    }
 }
 ORDER BY ASC(?n)
