@@ -1,0 +1,6 @@
+#Retrieve a list of all name graph
+
+SELECT ?g
+WHERE {
+    GRAPH ?g {}
+}
