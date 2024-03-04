@@ -1,0 +1,14 @@
+PREFIX : <>
+
+SELECT ?n
+WHERE {
+    {
+    ?c a :Characters ;
+         :name ?n .
+    }
+    UNION
+    {
+    ?c a :Film ;
+         :name ?n .
+    }
+}
