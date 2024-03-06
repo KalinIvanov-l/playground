@@ -9,7 +9,7 @@ public class ShortestPath {
   private TopologicalOrdering topologicalOrdering;
 
   public ShortestPath(List<Vertex> graph) {
-    graph.get(0).setMinDistance(0);
+    graph.getFirst().setMinDistance(0);
   }
 
   public void compute() {
