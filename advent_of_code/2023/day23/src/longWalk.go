@@ -30,7 +30,12 @@ func (n *Node) AddChild(child *Node) {
 
 func main() {
 	file, _ := os.Open("2023/day23/src/input.txt")
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(file)
 
 	scanner := bufio.NewScanner(file)
 	var grid [][]*Point
