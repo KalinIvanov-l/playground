@@ -1,6 +1,14 @@
-SELECT ?relationship
-WHERE {
-    <URI1>
-    ?relationship
-    <URI2>
+PREFIX path: <http://www.ontotext.com/path#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX voc: <https://swapi.co/vocabulary/>
+
+CONSTRUCT {
+    ?startNode ?predicate ?endNode.
+} WHERE {
+    SERVICE <http://www.ontotext.com/path#search> {
+        [] path:findPath path:shortestPath ;
+           path:sourceNode ?startNode ;
+           path:destinationNode ?endNode ;
+           path:propertyBinding ?predicate.
+    }
 }
