@@ -5,7 +5,7 @@ PREFIX voc: <https://swapi.co/vocabulary/>
 CONSTRUCT {
     ?startNode ?predicate ?endNode.
 } WHERE {
-    SERVICE <http://www.ontotext.com/path#search> {
+    SERVICE path:search {
         [] path:findPath path:shortestPath ;
            path:sourceNode ?startNode ;
            path:destinationNode ?endNode ;
