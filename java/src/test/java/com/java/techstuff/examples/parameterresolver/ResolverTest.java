@@ -9,14 +9,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(TestParameterResolver.class)
 class ResolverTest {
   @Test
-  void givenTitleAndAuthor_ShouldAsserExists(String title, String author) {
-    Book book = new Book(title, author);
+  void givenTitleAndAuthor_ShouldAssertExists(Book book) {
     assertThat(book.getTitle()).isNotEmpty();
     assertThat(book.getAuthor()).isNotEmpty();
   }
 
   @Test
-  void givenBook_whenConfiguringParameterResolver_thenParameterResolves(Book book) {
+  void givenBook_ShouldAssertCorrectTitleName(Book book) {
     assertThat(book.getTitle()).isEqualTo("Something");
   }
 }
