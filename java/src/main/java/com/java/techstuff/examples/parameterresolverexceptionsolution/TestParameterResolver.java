@@ -1,4 +1,4 @@
-package com.java.techstuff.examples.parameterresolver;
+package com.java.techstuff.examples.parameterresolverexceptionsolution;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;

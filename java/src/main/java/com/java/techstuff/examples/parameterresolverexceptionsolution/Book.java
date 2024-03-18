@@ -1,4 +1,4 @@
-package com.java.techstuff.examples.parameterresolver;
+package com.java.techstuff.examples.parameterresolverexceptionsolution;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
