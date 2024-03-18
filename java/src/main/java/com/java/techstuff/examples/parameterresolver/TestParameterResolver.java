@@ -16,6 +16,6 @@ public class TestParameterResolver implements ParameterResolver {
   public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
     return parameterContext.getParameter().getType() == Book.class
             ? new Book("Something", "Something")
-            : null;
+            : new ParameterResolutionException("");
   }
 }
