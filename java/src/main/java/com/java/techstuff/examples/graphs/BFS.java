@@ -51,6 +51,7 @@ public class BFS {
     HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(vertex))
             .build();
+    client.close();
 
     try {
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
