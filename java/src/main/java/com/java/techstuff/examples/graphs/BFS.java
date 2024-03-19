@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,7 +26,7 @@ public class BFS {
     this.discoveredWebSites = new ArrayList<>();
   }
 
-  public void discoverWeb(String root) {
+  public void discoverWeb(String root) throws InterruptedException {
     queue.add(root);
     discoveredWebSites.add(root);
 
@@ -46,7 +47,7 @@ public class BFS {
     }
   }
 
-  private String readURL(String vertex) {
+  private String readURL(String vertex) throws InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(vertex))
@@ -56,13 +57,10 @@ public class BFS {
     try {
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
       return response.body();
-    } catch (InterruptedException ie) {
+    } catch (InterruptedException | IOException exception) {
       Thread.currentThread().interrupt();
-      log.error("Thread interrupted while crawling the website: " + vertex, ie);
-      return "";
-    } catch (Exception exception) {
-      log.error("Errors occur while crawling the website: " + vertex, exception);
-      return "";
+      log.error("Thread interrupted while crawling the website: " + vertex, exception);
     }
+    throw new InterruptedException("----> Thread interrupted whole crawling");
   }
 }
