@@ -17,4 +17,8 @@ public record TopologicalOrdering(Deque<Vertex> deque) {
       deque.push(vertex);
     }
   }
+
+  public Deque<Vertex> getDeque() {
+    return deque();
+  }
 }
