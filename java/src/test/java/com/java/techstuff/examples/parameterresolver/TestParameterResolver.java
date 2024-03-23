@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 
 public class TestParameterResolver implements ParameterResolver {
+
   @Override
   public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
     return parameterContext.getParameter().getType() == Book.class;
