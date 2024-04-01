@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  labels:
+    name: app-service
+    app: demo-app
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    name: app-pod
+    app: demo-app
