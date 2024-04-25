@@ -12,7 +12,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# If using a dependency submission action in this workflow this permission will need to be set to:
+# If using a dependency submission action in this workflow, this permission will need to be set to:
 #
 # permissions:
 #   contents: write
