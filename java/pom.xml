@@ -97,6 +97,13 @@
         </dependency>
     </dependencies>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>openrewrite-maven-repository</id>
+            <url>https://repo.openrewrite.com/maven</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <plugins>
             <plugin>
