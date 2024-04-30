@@ -18,6 +18,11 @@ spec:
         name: worker-app-pod
         app: demo-app
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: worker-app
           image: kodekloud/examplevotingapp_worker:v1
+          resources:
+            limits:
+              memory: 100Mi
+              cpu: 0.5
