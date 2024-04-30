@@ -18,8 +18,13 @@ spec:
         name: result-app-pod
         app: demo-app
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: result-app
           image: kodekloud/examplevotingapp_result:v1
+          resources:
+            limits:
+              memory: 100Mi
+              cpu: 0.5
           ports:
             - containerPort: 80
