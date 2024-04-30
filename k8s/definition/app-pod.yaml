@@ -6,8 +6,13 @@ metadata:
     name: app-pod
     app: demo-app
 spec:
+  automountServiceAccountToken: false
   containers:
     - name: voting-app
       image: kodekloud/examplevotingapp_vote:v1
+      resources:
+        limits:
+          memory: 100Mi
+          cpu: 0.5
       ports:
         - containerPort: 80
