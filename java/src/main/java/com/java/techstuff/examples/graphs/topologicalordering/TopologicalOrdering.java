@@ -8,8 +8,6 @@ import java.util.Deque;
 @Getter
 public record TopologicalOrdering(Deque<Vertex> deque) {
   public void dfs(Vertex vertex) {
-    vertex.isVisited();
-
     for (Vertex vertex1 : vertex.neighborliness()) {
       if (!vertex.isVisited()) {
         dfs(vertex1);
