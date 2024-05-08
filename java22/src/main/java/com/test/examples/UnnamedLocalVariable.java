@@ -13,7 +13,7 @@ public class UnnamedLocalVariable {
               usr =admin
               pwd =example""");
     } catch (SQLException _) {
-      // this is just an example of using `_`. IT IS NOT GOOD PRACTICE TO LEAVE THIS BLOCK EMPTY
+      // this is just an example of using `_`. IT IS NOT A GOOD PRACTICE TO LEAVE THIS BLOCK EMPTY
     }
   }
 
