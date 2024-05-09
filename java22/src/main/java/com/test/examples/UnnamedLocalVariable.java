@@ -11,7 +11,9 @@ public class UnnamedLocalVariable {
               DB Connection successful
               URL =example
               usr =admin
-              pwd =example""");
+              pwd =example
+              """
+      );
     } catch (SQLException _) {
       // this is just an example of using `_`. IT IS NOT A GOOD PRACTICE TO LEAVE THIS BLOCK EMPTY
     }
