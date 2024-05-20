@@ -5,6 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class UnnamedLocalVariable {
+
+  /**
+   * <pre>
+   * @code
+   * </pre>
+   */
   void checkConnection() {
     try (Connection _ = DriverManager.getConnection("example", "admin", "example")) {
       System.out.println("""
