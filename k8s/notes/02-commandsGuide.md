@@ -22,7 +22,7 @@ Generate Deployment YAML file (-o yaml). Don't create it(--dry-run)
 ```kubectl create deployment --image=nginx nginx --dry-run -o yaml```
 
 
-Generate Deployment with 4 Replicas
+Generate Deployment with four Replicas
 
 ```kubectl create deployment nginx --image=nginx --replicas=4```
 
@@ -54,7 +54,7 @@ Or
 
 (This will not use the pods' labels as selectors; instead it will assume selectors as app=redis. You cannot pass in selectors as an option. So it does not work well if your pod has a different label set. So generate the file and modify the selectors before creating the service)
 
-Create a Service named nginx of type NodePort to expose pod nginx's port 80 on port 30080 on the nodes:
+Create a Service named nginx of type NodePort to expose pod nginx port 80 on port 30080 on the nodes:
 
 ```kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml```
 
