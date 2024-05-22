@@ -6,7 +6,9 @@ For example, in the multi-container pod that we talked about earlier that has a 
 
 But at times you may want to run a process that runs to completion in a container.
 For example, a process that pulls a code or binary from a repository that will be used by the main web application.
-That is a task that will be run only one time when the pod is first created. Or a process that waits for an external service or database to be up before the actual application starts. That's where initContainers comes in.
+That is a task that will be run only one time when the pod is first created.
+Or a process that waits for an external service or database to be up before the actual application starts.
+That's where initContainers come in.
 
 
 An initContainer is configured in a pod like all other containers, except that it is specified inside an initContainers section, like this:
@@ -57,4 +59,3 @@ If any of the initContainers fail to complete, Kubernetes restarts the Pod repea
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup mydb; do echo waiting for mydb; sleep 2; done;']
 ```
-
