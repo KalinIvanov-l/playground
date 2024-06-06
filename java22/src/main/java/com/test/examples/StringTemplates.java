@@ -1,5 +1,7 @@
 package com.test.examples;
 
+import static java.lang.StringTemplate.STR;
+
 public class StringTemplates {
   public void stringTemplate() {
     var name = "Kalin";
@@ -7,7 +9,7 @@ public class StringTemplates {
     System.out.println(info);
   }
 
-  public static void main(String[] args) {
+  public static void main() {
     var strTemp = new StringTemplates();
     strTemp.stringTemplate();
   }
