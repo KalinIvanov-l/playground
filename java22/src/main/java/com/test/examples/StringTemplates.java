@@ -1,5 +1,6 @@
 package com.test.examples;
 
+//this will be removed in a future release
 import static java.lang.StringTemplate.STR;
 
 public class StringTemplates {
