@@ -1,6 +1,7 @@
 package com.test.examples;
 
 public class ThreadsSample {
+
   public static void doWork() {
     try {
       Thread.sleep(1000);
@@ -8,7 +9,14 @@ public class ThreadsSample {
     }
   }
 
-  public static void main(String[] args) {
+  /**
+   *<blockquote>
+   *   <pre>
+   * {@code true}
+   *   </pre>
+   *</blockquote>
+   */
+  void main() {
     var MAX = 1_000_000;
     for (var i = 0; i < MAX; i++) {
       Thread.startVirtualThread(ThreadsSample::doWork);
@@ -18,7 +26,6 @@ public class ThreadsSample {
       Thread.sleep(2000);
     } catch (InterruptedException _) {
     }
-
     System.out.println("DONE");
   }
 }
