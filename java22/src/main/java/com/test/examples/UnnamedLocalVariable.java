@@ -25,7 +25,7 @@ public class UnnamedLocalVariable {
     }
   }
 
-  public static void main(String[] args) {
+  void main() {
     UnnamedLocalVariable unnamedLocalVariable = new UnnamedLocalVariable();
     unnamedLocalVariable.checkConnection();
   }
