@@ -1,2 +1,6 @@
+github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
+github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
 github.com/mitchellh/go-z3 v0.0.0-20191228203228-4cbedeba863f/go.mod h1:SCzzTuqNJ1cVcftwEustt+uZcgDQhp0lJnWQPU3a3Lw=
+github.com/shraddhaag/aoc v0.0.0-20241216150049-3961dd60c875 h1:uxQMrjMjNWElols9WAYyQnVB8W+4SQhjPviH9aw0bpU=
+github.com/shraddhaag/aoc v0.0.0-20241216150049-3961dd60c875/go.mod h1:flRf3vJOBPxs47wq6uGRA7E1EYEXOZvs6M1Q9/TOfhU=
 gonum.org/v1/gonum v0.14.0/go.mod h1:AoWeoz0becf9QMWtE8iWXNXc27fK4fNeHNf/oMejGfU=
