@@ -16,7 +16,8 @@ func main() {
 	part1, part2 := 0, map[[4]int]int{}
 	for _, s := range strings.Fields(string(input)) {
 		n, _ := strconv.Atoi(s)
-		secrets, diff := []int{n}, []int{}
+		var diff []int
+		secrets := []int{n}
 		for i := range 2000 {
 			n ^= n * 64 % 16777216
 			n ^= n / 32 % 16777216
