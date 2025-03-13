@@ -14,7 +14,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jsoup.version>1.17.2</jsoup.version>
-        <snowflake-jdbc.version>3.20.0</snowflake-jdbc.version>
+        <snowflake-jdbc.version>3.23.1</snowflake-jdbc.version>
         <lombok.version>1.18.30</lombok.version>
         <slf4j-api.version>2.0.10</slf4j-api.version>
         <slf4j-simple.version>2.0.10</slf4j-simple.version>
