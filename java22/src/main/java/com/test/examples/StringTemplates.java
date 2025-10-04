@@ -10,7 +10,7 @@ public class StringTemplates {
     System.out.println(info);
   }
 
-  public static void main() {
+  static void main() {
     var strTemp = new StringTemplates();
     strTemp.stringTemplate();
   }
